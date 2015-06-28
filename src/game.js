@@ -28,7 +28,8 @@ var LoseView;
 
 // Define game variables
 var level = 1;
-var clicks = 5;
+var clicks = 0;
+var maxClicks = 5;
 
 // Define preloader
 var preloader;
@@ -59,6 +60,8 @@ preloader.on("progress", handleProgress);
 preloader.on("fileload", handleFileLoad);
 preloader.on("complete", handleComplete);
 preloader.loadManifest(manifest);
+
+}
 
 function handleProgress(event) {
     showLoadingView(event.loaded);
@@ -103,7 +106,7 @@ function showLoadingView(loaded) {
 function showTitleView() {
     // Next button
     btnNextBg = new createjs.Shape();    
-    btnNextBg.graphics.beginFill("Black").drawRoundRect(0, 0, 50, 20, 10);
+    btnNextBg.graphics.beginFill("Black").drawRect(0, 0, 50, 20, 10);
     btnNextLabel = new createjs.Text("Next", "12px Comic Sans MS", "#ffffff");
     btnNextLabel.textAlign = "center";
     btnNextLabel.textBaseline = "middle";
@@ -135,7 +138,7 @@ function showHelpView() {
 
     // Go button
     btnGoBg = new createjs.Shape();    
-    btnGoBg.graphics.beginFill("Black").drawRoundRect(0, 0, 50, 20, 10);
+    btnGoBg.graphics.beginFill("Black").drawRect(0, 0, 50, 20, 10);
     btnGoLabel = new createjs.Text("Go!", "12px Comic Sans MS", "#ffffff");
     btnGoLabel.textAlign = "center";
     btnGoLabel.textBaseline = "middle";
@@ -157,9 +160,29 @@ function showHelpView() {
     stage.update();
 }
 
-function start() {
-    console.log("Start game");
+function showGameView() {    
+    // Level text
+    textLevel = new createjs.Text("Level: "+level, "12px Comic Sans MS");
+    textLevel.lineWidth = 100;
+    textLevel.lineHeight = 14;
+    textLevel.x = 0;
+    textLevel.y = 0;
+
+    // Clicks text
+    textClicks = new createjs.Text("Clicks Left: "+(maxClicks-clicks), "12px Comic Sans MS");
+    textClicks.lineWidth = 100;
+    textClicks.lineHeight = 14;
+    textClicks.x = 100;
+    textClicks.y = 0;
+
+    // Compile view
+    GameView = new createjs.Container();
+    GameView.addChild(textLevel, textClicks);
+    stage.addChild(GameView);
     stage.update();
 }
 
+function start() {
+    console.log("Start game");
+    showGameView();
 }
