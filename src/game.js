@@ -1,3 +1,16 @@
+// Module
+var Game = {
+
+    
+
+}
+
+(function() {
+    Game.init();
+})();
+
+//////////
+
 // Define stage
 var stage;
 
