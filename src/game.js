@@ -1,7 +1,7 @@
 // Define stage
 var stage;
 var stageWidth = 200;
-var stageHeight = 200;
+var stageHeight = 200; 
 
 // Define images
 var title;
@@ -75,6 +75,11 @@ function init() {
 // Create stage
 stage = new createjs.Stage("canvas");
 resizeCanvas();
+// Disable smoothing
+var ctx = stage.canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+ctx.mozImageSmoothingEnabled = false;
+ctx.oImageSmoothingEnabled = false;   
 
 // Preload assets
 createjs.Sound.alternateExtensions = ["mp3"];
