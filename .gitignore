@@ -4,3 +4,5 @@ sftp-config.json
 *sublime*
 /turing
 *.psd
+*.bmp
+*.wav
