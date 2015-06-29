@@ -16,6 +16,7 @@ var sfxLose;
 // Define GUI
 var background;
 var textLoaded;
+var textTitle;
 var btnNext;
 var textHelp;
 var btnGo;
@@ -136,6 +137,12 @@ function showLoadingView(loaded) {
 
 function showTitleView() {
     stage.removeAllChildren();
+    // Title text
+    titleText = new createjs.Text("Find Benji!", "italic 32px Comic Sans MS", "#990099");
+    titleText.lineWidth = stageWidth/2;
+    titleText.x = stageWidth/10;
+    titleText.y = stageHeight/4;
+
     // Next button
     btnNextBg = new createjs.Shape();    
     btnNextBg.graphics.beginFill("Black").drawRect(0, 0, 50, 20);
@@ -154,7 +161,7 @@ function showTitleView() {
 
     // Compile view
     TitleView = new createjs.Container();
-    TitleView.addChild(title, btnNext);
+    TitleView.addChild(title, titleText, btnNext);
     stage.addChild(TitleView);
     stage.update();
 
@@ -286,14 +293,16 @@ function showGameView() {
 
     // Level text
     textLevel = new createjs.Text("Level: "+level, "12px Comic Sans MS");
+    textLevel.textAlign = "center";
     textLevel.lineWidth = stageWidth/2;
-    textLevel.x = 0;
+    textLevel.x = stageWidth/4;
     textLevel.y = 0;
 
     // Clicks text
     textClicks = new createjs.Text("Clicks Left: "+(maxClicks-clicks), "12px Comic Sans MS");
+    textClicks.textAlign = "center";
     textClicks.lineWidth = stageWidth/2;
-    textClicks.x = stageWidth/2;
+    textClicks.x = 3*stageWidth/4;
     textClicks.y = 0;
 
     // Compile view
