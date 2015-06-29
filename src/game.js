@@ -9,11 +9,13 @@ var benji;
 var dori;   
 
 // Define sounds
+var soundToggle = true;
 var music;
 var sfxWin;
 var sfxLose;
 
 // Define GUI
+var btnSound;
 var background;
 var textLoaded;
 var textTitle;
@@ -81,6 +83,8 @@ manifest = [
     {id: "title", src: "assets/title.png"},
     {id: "benji", src: "assets/sprites/benji_0.png"},
     {id: "dori", src: "assets/sprites/dori_0.png"},
+    {id: "soundOn", src: "assets/sound_on.png"},
+    {id: "soundOff", src: "assets/sound_off.png"},
     // Sounds
     {id: "music", src: "assets/FunnyGameLoop.ogg"},
     {id: "sfxWin", src: "assets/win.ogg"},
@@ -135,6 +139,35 @@ function showLoadingView(loaded) {
     stage.update();    
 }
 
+function showSoundView() {
+    // Sound toggle
+    btnSound = new createjs.Container();
+    var img = new createjs.Bitmap(preloader.getResult("soundOn"));
+    btnSound.addChild(img);
+    btnSound.x = 0;
+    btnSound.y = 0;
+    btnSound.addEventListener("click", function(event){
+        soundToggle = !soundToggle;
+        btnSound.removeAllChildren();
+        if (soundToggle) {
+            createjs.Sound.muted = false;
+            img = new createjs.Bitmap(preloader.getResult("soundOn"));
+            btnSound.addChild(img);
+        } else {
+            createjs.Sound.muted = true;
+            img = new createjs.Bitmap(preloader.getResult("soundOff"));
+            btnSound.addChild(img);            
+        }
+        stage.update();        
+    });
+    // Define hit area
+    var hit = new createjs.Shape();
+    hit.graphics.beginFill("#f00").drawRect(0, 0, 14, 14);
+    btnSound.hitArea = hit;
+    stage.addChild(btnSound);
+    stage.update();
+}
+
 function showTitleView() {
     stage.removeAllChildren();
     // Title text
@@ -166,6 +199,7 @@ function showTitleView() {
     stage.update();
 
     // Sound
+    showSoundView();
     createjs.Sound.play("music", {loop:-1});
 }
 
@@ -176,7 +210,7 @@ function showHelpView() {
     textHelp.textAlign = "center";
     textHelp.lineWidth = 3*stageWidth/4;
     textHelp.x = stageWidth/2;
-    textHelp.y = 0;
+    textHelp.y = stageHeight/10;
 
     // Go button
     btnGoBg = new createjs.Shape();    
@@ -199,6 +233,9 @@ function showHelpView() {
     HelpView.addChild(textHelp, btnGo);
     stage.addChild(HelpView);
     stage.update();
+
+    // Sound
+    showSoundView();
 }
 
 function showWinView() {    
@@ -208,7 +245,7 @@ function showWinView() {
     textWin.textAlign = "center";
     textWin.lineWidth = 3*stageWidth/4;
     textWin.x = stageWidth/2;
-    textWin.y = 0;
+    textWin.y = stageHeight/10;
 
     // Run button
     btnRunBg = new createjs.Shape();    
@@ -235,6 +272,7 @@ function showWinView() {
     stage.update();
 
     // Sound
+    showSoundView();
     createjs.Sound.play("sfxWin");
 }
 
@@ -245,7 +283,7 @@ function showLoseView() {
     textLose.textAlign = "center";
     textLose.lineWidth = 3*stageWidth/4;
     textLose.x = stageWidth/2;
-    textLose.y = 0;
+    textLose.y = stageHeight/10;
 
     // Final level text
     textFinal = new createjs.Text("Level Reached:\n"+level, "10px Comic Sans MS");
@@ -277,6 +315,7 @@ function showLoseView() {
     stage.update();
 
     // Sound
+    showSoundView();
     createjs.Sound.stop();
     createjs.Sound.play("sfxLose");
 }
@@ -314,6 +353,9 @@ function showGameView() {
     // Draw characters
     drawBenji();
     drawDori();
+
+    // Sound
+    showSoundView();
 }
 
 function updateClicks() {
