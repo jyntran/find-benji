@@ -133,7 +133,7 @@ function showTitleView() {
     stage.update();
 
     // Sound
-    createjs.Sound.play("music");
+    createjs.Sound.play("music", {loop:-1});
 }
 
 function showHelpView() {    
