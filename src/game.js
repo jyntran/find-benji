@@ -41,11 +41,37 @@ var preloader;
 var manifest;
 var totalLoaded = 0;
 
+function resizeCanvas() {
+    // Browser viewport size
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    // Stage dimensions
+    var sWidth = stageWidth;
+    var sHeight = stageHeight;
+
+    // Keep aspect ratio
+    var scale = Math.min(width/sWidth, height/sHeight);
+    stage.scaleX = scale;
+    stage.scaleY = scale;
+
+    // Adjust canvas size
+    stage.canvas.width = stageWidth * scale;
+    stage.canvas.height = stageHeight * scale;
+
+    stage.update();
+}
+
+window.onresize = function()
+{
+     resizeCanvas();
+}
 
 function init() {
 
 // Create stage
 stage = new createjs.Stage("canvas");
+resizeCanvas();
 
 // Preload assets
 createjs.Sound.alternateExtensions = ["mp3"];
@@ -133,7 +159,7 @@ function showTitleView() {
     stage.update();
 
     // Sound
-    createjs.Sound.play("music");
+    createjs.Sound.play("music", {loop:-1});
 }
 
 function showHelpView() {    
