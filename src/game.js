@@ -47,16 +47,17 @@ function init() {
 // Create stage
 stage = new createjs.Stage("canvas");
 
-// Preload images
+// Preload assets
+createjs.Sound.alternateExtensions = ["mp3"];
 manifest = [
     // Images
     {id: "title", src: "assets/title.png"},
     {id: "benji", src: "assets/sprites/benji_0.png"},
     {id: "dori", src: "assets/sprites/dori_0.png"},
     // Sounds
-    // {id: "music", src: "assets/106A.mp3"},
-    {id: "sfxWin", src: "assets/win.wav"},
-    {id: "sfxLose", src: "assets/bang.wav"}
+    {id: "music", src: "assets/FunnyGameLoop.ogg"},
+    {id: "sfxWin", src: "assets/win.ogg"},
+    {id: "sfxLose", src: "assets/bang.ogg"}
 ];
 
 preloader = new createjs.LoadQueue();
@@ -130,6 +131,9 @@ function showTitleView() {
     TitleView.addChild(title, btnNext);
     stage.addChild(TitleView);
     stage.update();
+
+    // Sound
+    createjs.Sound.play("music");
 }
 
 function showHelpView() {    
@@ -196,6 +200,9 @@ function showWinView() {
     WinView.addChild(textWin, btnRun);
     stage.addChild(WinView);
     stage.update();
+
+    // Sound
+    createjs.Sound.play("sfxWin");
 }
 
 function showLoseView() {    
@@ -235,6 +242,10 @@ function showLoseView() {
     LoseView.addChild(textLose, textFinal, btnRun);
     stage.addChild(LoseView);
     stage.update();
+
+    // Sound
+    createjs.Sound.stop();
+    createjs.Sound.play("sfxLose");
 }
 
 function showGameView() {   
