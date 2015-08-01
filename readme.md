@@ -1,3 +1,7 @@
+# Find Benji
+
+Play on your browser or mobile device: http://findbenji.jyntran.ca
+
 ## Attribution
 
 **Music**
