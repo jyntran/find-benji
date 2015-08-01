@@ -1,21 +1,24 @@
 // Define stage
 var stage;
 var stageWidth = 200;
-var stageHeight = 200;
+var stageHeight = 200; 
 
 // Define images
 var title;
-var benji;
-var dori;   
+var benji, benjiRun, benjiSprite;
+var dori, doriRun, doriSprite; 
 
 // Define sounds
+var soundToggle = true;
 var music;
 var sfxWin;
 var sfxLose;
 
 // Define GUI
+var btnSound;
 var background;
 var textLoaded;
+var textTitle;
 var btnNext;
 var textHelp;
 var btnGo;
@@ -72,14 +75,21 @@ function init() {
 // Create stage
 stage = new createjs.Stage("canvas");
 resizeCanvas();
+// Disable smoothing
+var ctx = stage.canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+ctx.mozImageSmoothingEnabled = false;
+ctx.oImageSmoothingEnabled = false;   
 
 // Preload assets
 createjs.Sound.alternateExtensions = ["mp3"];
 manifest = [
     // Images
     {id: "title", src: "assets/title.png"},
-    {id: "benji", src: "assets/sprites/benji_0.png"},
-    {id: "dori", src: "assets/sprites/dori_0.png"},
+    {id: "benjiSS", src: "assets/sprites/benji.png"},
+    {id: "doriSS", src: "assets/sprites/dori.png"},
+    {id: "soundOn", src: "assets/sound_on.png"},
+    {id: "soundOff", src: "assets/sound_off.png"},
     // Sounds
     {id: "music", src: "assets/FunnyGameLoop.ogg"},
     {id: "sfxWin", src: "assets/win.ogg"},
@@ -92,7 +102,6 @@ preloader.on("progress", handleProgress);
 preloader.on("fileload", handleFileLoad);
 preloader.on("complete", handleComplete);
 preloader.loadManifest(manifest);
-
 }
 
 function handleProgress(event) {
@@ -120,7 +129,56 @@ function handleFileLoadComplete(event) {
 }
 
 function handleComplete(event) {
-    showTitleView();
+    createSprites();
+    createjs.Ticker.timingMode = createjs.Ticker.RAF;
+    createjs.Ticker.addEventListener("tick", stage);
+}
+
+function createSprites() {
+    benjiSprite();
+    doriSprite();
+}
+
+function benjiSprite() {
+    benjiSprite = new createjs.SpriteSheet({
+        "images": [ benjiSS.image ],
+        "framerate": 8,
+        "frames": {
+            "width": 22,
+            "height": 29,
+            "count": 4,
+            "numFrames": 4,
+            "regX": 0,
+            "regY": 0
+        },
+        "animations": {
+            "stand": 0,
+            "run": [0, 3]
+        }
+    });
+    benji = new createjs.Sprite(benjiSprite, "stand");
+    benjiRun = new createjs.Sprite(benjiSprite, "run");
+}
+
+function doriSprite() {
+    doriSprite = new createjs.SpriteSheet({
+        "images": [ doriSS.image ],
+        "framerate": 8,
+        "frames": {
+            "width": 22,
+            "height": 29,
+            "count": 4,
+            "numFrames": 4,
+            "regX": 0,
+            "regY": 0
+        },
+        "animations": {
+            "stand": 0,
+            "run": [0, 3]
+        }
+    });
+    dori = new createjs.Sprite(doriSprite, "stand");
+    doriRun = new createjs.Sprite(doriSprite, "run");
 }
 
 function showLoadingView(loaded) {
@@ -134,8 +192,42 @@ function showLoadingView(loaded) {
     stage.update();    
 }
 
+function showSoundView() {
+    // Sound toggle
+    btnSound = new createjs.Container();
+    var img = new createjs.Bitmap(preloader.getResult("soundOn"));
+    btnSound.addChild(img);
+    btnSound.x = 0;
+    btnSound.y = 0;
+    btnSound.addEventListener("click", function(event){
+        soundToggle = !soundToggle;
+        btnSound.removeAllChildren();
+        if (soundToggle) {
+            createjs.Sound.muted = false;
+            img = new createjs.Bitmap(preloader.getResult("soundOn"));
+            btnSound.addChild(img);
+        } else {
+            createjs.Sound.muted = true;
+            img = new createjs.Bitmap(preloader.getResult("soundOff"));
+            btnSound.addChild(img);            
+        }
+        stage.update();        
+    });
+    // Define hit area
+    var hit = new createjs.Shape();
+    hit.graphics.beginFill("#f00").drawRect(0, 0, 14, 14);
+    btnSound.hitArea = hit;
+    stage.addChild(btnSound);
+}
+
 function showTitleView() {
     stage.removeAllChildren();
+    // Title text
+    titleText = new createjs.Text("Find Benji!", "italic 32px Comic Sans MS", "#990099");
+    titleText.lineWidth = stageWidth/2;
+    titleText.x = stageWidth/10;
+    titleText.y = stageHeight/4;
+
     // Next button
     btnNextBg = new createjs.Shape();    
     btnNextBg.graphics.beginFill("Black").drawRect(0, 0, 50, 20);
@@ -154,11 +246,11 @@ function showTitleView() {
 
     // Compile view
     TitleView = new createjs.Container();
-    TitleView.addChild(title, btnNext);
+    TitleView.addChild(title, titleText, btnNext);
     stage.addChild(TitleView);
-    stage.update();
 
     // Sound
+    showSoundView();
     createjs.Sound.play("music", {loop:-1});
 }
 
@@ -169,7 +261,7 @@ function showHelpView() {
     textHelp.textAlign = "center";
     textHelp.lineWidth = 3*stageWidth/4;
     textHelp.x = stageWidth/2;
-    textHelp.y = 0;
+    textHelp.y = stageHeight/10;
 
     // Go button
     btnGoBg = new createjs.Shape();    
@@ -181,17 +273,26 @@ function showHelpView() {
     btnGoLabel.y = 20/2;
     btnGo = new createjs.Container();
     btnGo.x = 3*stageWidth/8;
-    btnGo.y = 3*stageHeight/4;
+    btnGo.y = 5*stageHeight/8;
     btnGo.addChild(btnGoBg, btnGoLabel);
     btnGo.addEventListener("click", function(event){
         start();
     });
 
+    // Sprites
+    benjiRun.x = 1*stageWidth/8;
+    benjiRun.y = 5*stageHeight/8;
+
+    doriRun.x = 6*stageHeight/8;
+    doriRun.y = 5*stageHeight/8;
+
     // Compile view
     HelpView = new createjs.Container();
-    HelpView.addChild(textHelp, btnGo);
+    HelpView.addChild(textHelp, btnGo, benjiRun, doriRun);
     stage.addChild(HelpView);
-    stage.update();
+
+    // Sound
+    showSoundView();
 }
 
 function showWinView() {    
@@ -201,7 +302,7 @@ function showWinView() {
     textWin.textAlign = "center";
     textWin.lineWidth = 3*stageWidth/4;
     textWin.x = stageWidth/2;
-    textWin.y = 0;
+    textWin.y = stageHeight/10;
 
     // Run button
     btnRunBg = new createjs.Shape();    
@@ -221,13 +322,17 @@ function showWinView() {
         start();
     });
 
+    // Sprite
+    benjiRun.x = 7*stageWidth/16;
+    benjiRun.y = 3*stageHeight/8;
+
     // Compile view
     WinView = new createjs.Container();
-    WinView.addChild(textWin, btnRun);
+    WinView.addChild(textWin, btnRun, benjiRun);
     stage.addChild(WinView);
-    stage.update();
 
     // Sound
+    showSoundView();
     createjs.Sound.play("sfxWin");
 }
 
@@ -238,14 +343,14 @@ function showLoseView() {
     textLose.textAlign = "center";
     textLose.lineWidth = 3*stageWidth/4;
     textLose.x = stageWidth/2;
-    textLose.y = 0;
+    textLose.y = stageHeight/10;
 
     // Final level text
     textFinal = new createjs.Text("Level Reached:\n"+level, "10px Comic Sans MS");
     textFinal.textAlign = "center";
     textFinal.lineWidth = 3*stageWidth/4;
     textFinal.x = stageWidth/2;
-    textFinal.y = stageHeight/2;
+    textFinal.y = 9*stageHeight/16;
 
     // Run button
     btnRunBg = new createjs.Shape();    
@@ -263,13 +368,17 @@ function showLoseView() {
         showTitleView();
     });
 
+    // Sprite
+    doriRun.x = 7*stageWidth/16;
+    doriRun.y = 3*stageHeight/8;
+
     // Compile view
     LoseView = new createjs.Container();
-    LoseView.addChild(textLose, textFinal, btnRun);
+    LoseView.addChild(textLose, textFinal, btnRun, doriRun);
     stage.addChild(LoseView);
-    stage.update();
 
     // Sound
+    showSoundView();
     createjs.Sound.stop();
     createjs.Sound.play("sfxLose");
 }
@@ -286,25 +395,28 @@ function showGameView() {
 
     // Level text
     textLevel = new createjs.Text("Level: "+level, "12px Comic Sans MS");
+    textLevel.textAlign = "center";
     textLevel.lineWidth = stageWidth/2;
-    textLevel.x = 0;
+    textLevel.x = stageWidth/4;
     textLevel.y = 0;
 
     // Clicks text
     textClicks = new createjs.Text("Clicks Left: "+(maxClicks-clicks), "12px Comic Sans MS");
+    textClicks.textAlign = "center";
     textClicks.lineWidth = stageWidth/2;
-    textClicks.x = stageWidth/2;
+    textClicks.x = 3*stageWidth/4;
     textClicks.y = 0;
 
     // Compile view
     GameView = new createjs.Container();
     GameView.addChild(background, textLevel, textClicks);
+    drawBenji();
+    drawDori();
     stage.addChild(GameView);
     stage.update();
 
-    // Draw characters
-    drawBenji();
-    drawDori();
+    // Sound
+    showSoundView();
 }
 
 function updateClicks() {
@@ -323,20 +435,20 @@ function checkConditions() {
 function drawDori() {
     for(var i=0; i<level*4; i++) {
         var d = new createjs.Container();
-        var img = new createjs.Bitmap(preloader.getResult("dori"));
-        d.addChild(img);
+        // Sprite
+        var dori = new createjs.Sprite(doriSprite, "stand");
+        d.addChild(dori);
         d.x = Math.floor((Math.random() * (stageWidth-25)) + 0);
         d.y = Math.floor((Math.random() * (stageHeight-80)) + 20);
-        stage.addChild(d);
-        stage.update(); 
+        GameView.addChild(d);
     }
 }
 
 function drawBenji() {
         // Create
         var b = new createjs.Container();
-        var img = new createjs.Bitmap(preloader.getResult("benji"));
-        b.addChild(img);
+        // Sprite
+        b.addChild(benji);
         b.x = Math.floor((Math.random() * (stageWidth-25)) + 0);
         b.y = Math.floor((Math.random() * (stageHeight-80)) + 20);
         // Define mouse event
@@ -348,8 +460,7 @@ function drawBenji() {
         hit.graphics.beginFill("#f00").drawRect(0, 0, 22, 28);
         b.hitArea = hit;
         // Paint
-        stage.addChild(b);
-        stage.update();     
+        GameView.addChild(b);
 }
 
 function start() {
